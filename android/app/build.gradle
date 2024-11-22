@@ -169,23 +169,23 @@ android {
         }
     }
 
-    signingConfigs {
+    // signingConfigs {
 
-        release {
-            keyAlias localProperties['KEY_ALIAS']
-            keyPassword getSigningKeyPassword()
-            storeFile file(localProperties['KEY_FILE'])
-            storePassword getKeystorePassword()
-        }
+    //     release {
+    //         keyAlias localProperties['KEY_ALIAS']
+    //         keyPassword getSigningKeyPassword()
+    //         storeFile file(localProperties['KEY_FILE'])
+    //         storePassword getKeystorePassword()
+    //     }
 
-        beta {
-            keyAlias localProperties['PREVIEW_KEY_ALIAS']
-            keyPassword getPreviewSigningKeyPassword()
-            storeFile file(localProperties['PREVIEW_KEY_FILE'])
-            storePassword getPreviewKeystorePassword()
-        }
+    //     beta {
+    //         keyAlias localProperties['PREVIEW_KEY_ALIAS']
+    //         keyPassword getPreviewSigningKeyPassword()
+    //         storeFile file(localProperties['PREVIEW_KEY_FILE'])
+    //         storePassword getPreviewKeystorePassword()
+    //     }
 
-    }
+    // }
 
     buildTypes {
         debug {
@@ -200,12 +200,12 @@ android {
 
             matchingFallbacks = ['release']
 
-            signingConfig signingConfigs.beta
+            // signingConfig signingConfigs.beta
             buildConfigField "String", "BUILD_PATH", "\".test\""
         }
 
         release {
-            signingConfig signingConfigs.release
+            // signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
 
             firebaseCrashlytics {
@@ -278,6 +278,9 @@ dependencies {
     // Execution failed for task ':app:checkDebugDuplicateClasses'
     // Fix: https://stackoverflow.com/a/75266614
     implementation platform('org.jetbrains.kotlin:kotlin-bom:1.8.0')
+
+    // for android speech-to-text
+    implementation group: 'com.alphacephei', name: 'vosk-android', version: '0.3.32+'
 }
 
 if (isNewArchitectureEnabled()) {

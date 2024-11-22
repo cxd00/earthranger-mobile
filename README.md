@@ -174,6 +174,16 @@ $ yarn android
 
 This should build and install the app on a running device/emulator
 
+#### Earthranger Setup
+
+For Speech-To-Text: 
+```sh
+npm install -S react-native-vosk --legacy-peer-deps
+```
+Download vosk-model-small-en-us-0.15 (40M parameters, requires 300MB to run) and move the whole folder to /android/app/src/main/assets.
+
+In the package code for react-native-vosk: 
+
 ### iOS
 
 There are a couple of ways to run the iOS app.
