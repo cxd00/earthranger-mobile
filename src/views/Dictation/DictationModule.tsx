@@ -29,18 +29,16 @@ const DictationModule = () => {
   const rawDictations: string[] = [];
   const rawConfidences: number[] = [];
 
-  const getButtonState = () => {
+  useEffect(() => {
     if (!modelReady) {
       setButtonText('Loading model...');
+    } else if (isDictating) {
+      setButtonText('Dictation in progress...press to stop');
     } else {
-      if (isDictating) {
-        setButtonText('Dictation in progress...press to stop');
-      } else {
-        setButtonText('Start Recording');
-      }
+      setButtonText('Start Recording');
     }
-  };
-  
+  }, [modelReady, isDictating]);
+
   const loadModel = useCallback(() => {
     vosk
       .loadModel('vosk-model-small-en-us-0.15')
