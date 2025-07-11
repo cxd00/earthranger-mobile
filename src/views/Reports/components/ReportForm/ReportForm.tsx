@@ -5,7 +5,7 @@ import React, {
 } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
-  BackHandler, Dimensions, Image, Pressable, ScrollView, View,
+  BackHandler, Dimensions, Image, Pressable, ScrollView, View
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import {
@@ -87,6 +87,8 @@ import {
 import { customBackButton, osBackIcon } from '../../../../common/components/header/header';
 import { LocationFormats, nullIslandLocation } from '../../../../common/utils/locationUtils';
 import { useGetLocation } from '../../../../common/data/location/useGetLocation';
+import { WhisperModule } from '../../../Dictation/WhisperModule';
+import { SummarizationModule } from '../../../Dictation/SummarizationModule';
 
 // constants
 import {
@@ -218,6 +220,9 @@ const ReportForm = () => {
   const [draftViewFinishedLoading, setDraftViewFinishedLoading] = useState(false);
   const [isLoaderVisible, setIsLoaderVisible] = useState(false);
   const [accuracy, setAccuracy] = useState(0);
+  const [dictationOutput, setDictationOutput] = useState('');
+  const [experimentNoteId, setExperimentNoteId] = useState(-1);
+  const [isTranscribing, setIsTranscribing] = useState(true);
 
   let mapURL = createMapBoxPointMapURL(reportCoordinates);
 
@@ -254,8 +259,28 @@ const ReportForm = () => {
     initFolder(ATTACHMENTS_THUMBNAILS_FOLDER);
   }, []);
 
+  // uses this to add the outputs to the note object
   useEffect(() => {
+    if ((dictationOutput === '' && Object.keys(formEditData).length > 0) || isTranscribing) {return;}
+    var noteId: number;
+    if (experimentNoteId >= 0) { // not new
+      noteId = experimentNoteId;
+      console.log("a", noteId);
+      updateNote(noteId, `${dictationOutput}\n\n${JSON.stringify(formEditData)}`, noteId-1);
+    } else { // new dictation
+      noteId = notesIdCounter + 1;
+      setNotesIdCounter(noteId);
+      console.log("b", noteId);
+      createNote(noteId, `${dictationOutput}\n\n${JSON.stringify(formEditData)}`);
+      setExperimentNoteId(noteId);
+    }
+  }, [dictationOutput, isTranscribing, formEditData]);
+
+
+  useEffect(() => {
+    console.log("start note", notesChannelId);
     const eventListener = eventEmitter.addListener(notesChannelId, (note: Note) => {
+      console.log(note);
       const noteUpdate = notesDataSource.find((item) => (item.id === note.id));
       if (noteUpdate) {
         const index = notesDataSource.indexOf(noteUpdate);
@@ -992,8 +1017,10 @@ const ReportForm = () => {
         ref={scrollViewRef}
         style={styles.scrollView}
       >
+        <WhisperModule setDictationOutput={setDictationOutput} setIsCapturing={setIsTranscribing} reportTypeId={reportTypeId} />
+        {title === "Field Journal" ? null : <SummarizationModule dictationString={dictationOutput} schema={schema} setFormEditData={setFormEditData}  />}
         {/* Schema Error Message */}
-        {showSchemaErrorMessage ? (
+        {false ? (
           <ReportFormSchemaError />
         ) : (
           <View>

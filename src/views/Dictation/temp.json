@@ -1,0 +1,894 @@
+{
+    "schema": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "title": "Bed Report (bed)",
+        "type": "object",
+        "properties": {
+            "cluster_id": {
+                "type": "string",
+                "required": true,
+                "title": "Cluster ID"
+            },
+            "cougar_id": {
+                "type": "string",
+                "required": true,
+                "title": "Cougar ID",
+                "enum": [],
+                "enumNames": {}
+            },
+            "multi_cluster_entry": {
+                "type": "string",
+                "required": true,
+                "title": "Multi Cluster Entry?",
+                "enum": [
+                    "yes",
+                    "no",
+                    "unknown"
+                ],
+                "enumNames": {
+                    "yes": "Yes",
+                    "no": "No",
+                    "unknown": "Unknown"
+                }
+            },
+            "revisit": {
+                "type": "string",
+                "required": true,
+                "title": "Revisit",
+                "enum": [
+                    "yes",
+                    "no",
+                    "unknown"
+                ],
+                "enumNames": {
+                    "yes": "Yes",
+                    "no": "No",
+                    "unknown": "Unknown"
+                }
+            },
+            "visit_date": {
+                "type": "string",
+                "required": true,
+                "title": "Visit Date"
+            },
+            "observers": {
+                "key": "multi_select_field",
+                "required": true
+            },
+            "first_date_time": {
+                "type": "string",
+                "required": true,
+                "title": "First Date/Time"
+            },
+            "last_date_time": {
+                "type": "string",
+                "required": true,
+                "title": "Last Date/Time"
+            },
+            "num_points": {
+                "type": "number",
+                "required": true,
+                "title": "Num Points",
+                "minimum": 1
+            },
+            "general_location": {
+                "type": "string",
+                "title": "General Location"
+            },
+            "habitat": {
+                "key": "multi_select_field"
+            },
+            "est_stand_age": {
+                "type": "string",
+                "title": "Estimated Stand Age",
+                "enum": [
+                    "0-5",
+                    "6-20",
+                    "21-60",
+                    "61-99",
+                    "100+",
+                    "N/A"
+                ],
+                "enumNames": {
+                    "0-5": "0-5",
+                    "6-20": "6-20",
+                    "21-60": "21-60",
+                    "61-99": "61-99",
+                    "100+": "100+",
+                    "N/A": "N/A"
+                }
+            },
+            "dominant_overstory": {
+                "type": "string",
+                "title": "Dominant Overstory",
+                "enum": [
+                    "Beaked_hazelnut",
+                    "Bigleaf_maple",
+                    "Bitter_cherry",
+                    "Black_cottonwood",
+                    "Black_hawthorn",
+                    "Cascara",
+                    "Douglas_fir",
+                    "Grand_fir",
+                    "Madrone",
+                    "Mountain_hemlock",
+                    "N/A",
+                    "No_overstory",
+                    "Other",
+                    "Pacific_crab_apple",
+                    "Red_alder",
+                    "Salmonberry",
+                    "Shore_pine",
+                    "Silver_fir",
+                    "Sitka_spruce",
+                    "Slide_alder",
+                    "Subalpine_fir",
+                    "Vine_maple",
+                    "Western_hemlock",
+                    "Western_red_cedar",
+                    "Western_white_pine",
+                    "Willow_spp",
+                    "Yellow_cedar",
+                    "Pacific_yew"
+                ],
+                "enumNames": {
+                    "Beaked_hazelnut": "Beaked hazelnut",
+                    "Bigleaf_maple": "Bigleaf maple",
+                    "Bitter_cherry": "Bitter cherry",
+                    "Black_cottonwood": "Black cottonwood",
+                    "Black_hawthorn": "Black hawthorne",
+                    "Cascara": "Cascara",
+                    "Douglas_fir": "Douglas fir",
+                    "Grand_fir": "Grand fir",
+                    "Madrone": "Madrone",
+                    "Mountain_hemlock": "Mountain hemlock",
+                    "N/A": "N/A",
+                    "No_overstory": "No overstory",
+                    "Other": "Other (in comments)",
+                    "Pacific_crab_apple": "Pacific crab apple",
+                    "Red_alder": "Red alder",
+                    "Salmonberry": "Salmonberry",
+                    "Shore_pine": "Shore pine",
+                    "Silver_fir": "Silver fir",
+                    "Sitka_spruce": "Sitka spruce",
+                    "Slide_alder": "Slide alder",
+                    "Subalpine_fir": "Subalpine fir",
+                    "Vine_maple": "Vine maple",
+                    "Western_hemlock": "Western hemlock",
+                    "Western_red_cedar": "Western red cedar",
+                    "Western_white_pine": "Western white pine",
+                    "Willow_spp": "Willow spp",
+                    "Yellow_cedar": "Yellow cedar",
+                    "Pacific_yew": "Pacific yew"
+                }
+            },
+            "dominant_understory": {
+                "type": "string",
+                "title": "Dominant Understory",
+                "enum": [
+                    "Aster_spp",
+                    "Beaked_hazelnut",
+                    "Bigleaf_maple",
+                    "Bitter_cherry",
+                    "Black_cottonwood",
+                    "Black_cap_raspberry",
+                    "Black_hawthorn",
+                    "Bracken_fern",
+                    "Buttercup_spp",
+                    "Cascara",
+                    "Carrot_spp",
+                    "Coltsfoot",
+                    "Devil's_club",
+                    "Douglas_fir",
+                    "Elderberry",
+                    "Evergreen_huckleberry",
+                    "False_azelea",
+                    "Fern_spp",
+                    "Field_mint",
+                    "Fireweed",
+                    "Grand_fir",
+                    "Grass_spp",
+                    "Hardhack",
+                    "Himalayan_blackberrry",
+                    "Indian_plum",
+                    "Kinnikinnick",
+                    "Labradore_tea",
+                    "Lily_spp",
+                    "Madrone",
+                    "Moss_spp",
+                    "Mountain_hemlock",
+                    "N/A",
+                    "No_understory",
+                    "Oceanspray",
+                    "Orchid_spp",
+                    "Oregon_grape",
+                    "Other",
+                    "Pacific_crab_apple",
+                    "Pea_spp",
+                    "Red_alder",
+                    "Red_flowering_currant",
+                    "Red_osier_dogwood",
+                    "Reed_canary",
+                    "Rhododendron",
+                    "Rose_spp",
+                    "Salal",
+                    "Salmonberry",
+                    "Scotch_broom",
+                    "Sedge_spp",
+                    "Serviceberry",
+                    "Shore_pine",
+                    "Silver_fir",
+                    "Sitka_spruce",
+                    "Skunk_cabbage",
+                    "Spirea",
+                    "Slide_alder",
+                    "Snowberry",
+                    "Stinging_nettle",
+                    "Stink_currant",
+                    "Subalpine_fir",
+                    "Swamp_cabbage",
+                    "Sword_fern",
+                    "Thimbleberry",
+                    "Trailing_blackberry",
+                    "Twin_berry",
+                    "Vaccinium",
+                    "Vine_maple",
+                    "Western_hemlock",
+                    "Western_red_cedar",
+                    "Western_white_pine",
+                    "Pacific_yew",
+                    "Willow_spp",
+                    "Wood_sorrel",
+                    "Yellow_cedar"
+                ],
+                "enumNames": {
+                    "Aster_spp": "Aster spp",
+                    "Beaked_hazelnut": "Beaked hazelnut",
+                    "Bigleaf_maple": "Bigleaf maple",
+                    "Bitter_cherry": "Bitter cherry",
+                    "Black_cottonwood": "Black cottonwood",
+                    "Black_cap_raspberry": "Black cap raspberry",
+                    "Black_hawthorn": "Black hawthorn",
+                    "Bracken_fern": "Bracken fern",
+                    "Buttercup_spp": "Buttercup spp",
+                    "Cascara": "Cascara",
+                    "Carrot_spp": "Carrot spp",
+                    "Coltsfoot": "Coltsfoot",
+                    "Devil's_club": "Devil's club",
+                    "Douglas_fir": "Douglas fir",
+                    "Elderberry": "Elderberry",
+                    "Evergreen_huckleberry": "Evergreen huckleberry",
+                    "False_azelea": "False azalea",
+                    "Fern_spp": "Fern spp",
+                    "Field_mint": "Field mint",
+                    "Fireweed": "Fireweed",
+                    "Grand_fir": "Grand fir",
+                    "Grass_spp": "Grass spp",
+                    "Hardhack": "Hardhack",
+                    "Himalayan_blackberrry": "Himalayan blackberry",
+                    "Indian_plum": "Indian plum",
+                    "Kinnikinnick": "Kinnikinnick",
+                    "Labradore_tea": "Labradore Tea",
+                    "Lily_spp": "Lily spp",
+                    "Madrone": "Madrone",
+                    "Moss_spp": "Moss spp",
+                    "Mountain_hemlock": "Mountain hemlock",
+                    "N/A": "N/A",
+                    "No_understory": "No understory",
+                    "Oceanspray": "Oceanspray",
+                    "Orchid_spp": "Orchid spp",
+                    "Oregon_grape": "Oregon grape",
+                    "Other": "Other (in comments)",
+                    "Pacific_crab_apple": "Pacific crab apple",
+                    "Pea_spp": "Pea spp",
+                    "Red_alder": "Red alder",
+                    "Red_flowering_currant": "Red-flowering currant",
+                    "Red_osier_dogwood": "Red Osier Dogwood",
+                    "Reed_canary": "Reed canary",
+                    "Rhododendron": "Rhododendron",
+                    "Rose_spp": "Rose spp",
+                    "Salal": "Salal",
+                    "Salmonberry": "Salmonberry",
+                    "Scotch_broom": "Scotch broom",
+                    "Sedge_spp": "Sedge spp",
+                    "Serviceberry": "Serviceberry",
+                    "Shore_pine": "Shore pine",
+                    "Silver_fir": "Silver fir",
+                    "Sitka_spruce": "Sitka spruce",
+                    "Skunk_cabbage": "Skunk cabbage",
+                    "Spirea": "Spirea",
+                    "Slide_alder": "Slide alder",
+                    "Snowberry": "Snowberry",
+                    "Stinging_nettle": "Stinging nettle",
+                    "Stink_currant": "Stink currant",
+                    "Subalpine_fir": "Subalpine fir",
+                    "Swamp_cabbage": "Swamp cabbage",
+                    "Sword_fern": "Sword fern",
+                    "Thimbleberry": "Thimbleberry",
+                    "Trailing_blackberry": "Trailing blackberry",
+                    "Twin_berry": "Twin berry",
+                    "Vaccinium": "Vaccinium",
+                    "Vine_maple": "Vine maple",
+                    "Western_hemlock": "Western hemlock",
+                    "Western_red_cedar": "Western red cedar",
+                    "Western_white_pine": "Western white pine",
+                    "Pacific_yew": "Pacific yew",
+                    "Willow_spp": "Willow spp",
+                    "Wood_sorrel": "Wood sorrel",
+                    "Yellow_cedar": "Yellow cedar"
+                }
+            },
+            "area_cover": {
+                "type": "string",
+                "title": "Area of Bed",
+                "enum": [
+                    "Heavy",
+                    "Intermediate",
+                    "Open",
+                    "N/A"
+                ],
+                "enumNames": {
+                    "Heavy": "Heavy",
+                    "Intermediate": "Intermediate",
+                    "Open": "Open",
+                    "N/A": "N/A"
+                }
+            },
+            "canopy_cover": {
+                "type": "string",
+                "title": "Canopy Cover",
+                "enum": [
+                    "0-25",
+                    "26-50",
+                    "51-75",
+                    "76-100"
+                ],
+                "enumNames": {
+                    "0-25": "0-25",
+                    "26-50": "26-50",
+                    "51-75": "51-75",
+                    "76-100": "76-100"
+                }
+            },
+            "latitude": {
+                "type": "string",
+                "required": true,
+                "title": "Latitude"
+            },
+            "longitude": {
+                "type": "string",
+                "required": true,
+                "title": "Longitude"
+            },
+            "associated_with_kill": {
+                "type": "string",
+                "title": "Was bed associated with Kill?",
+                "enum": [
+                    "yes",
+                    "no",
+                    "unknown"
+                ],
+                "enumNames": {
+                    "yes": "Yes",
+                    "no": "No",
+                    "unknown": "Unknown"
+                }
+            },
+            "bed_site_description": {
+                "type": "string",
+                "title": "Bed-site description"
+            },
+            "canopy_cover_over_bed": {
+                "type": "string",
+                "title": "Canopy cover over bed",
+                "enum": [
+                    "0-25",
+                    "26-50",
+                    "51-75",
+                    "76-100"
+                ],
+                "enumNames": {
+                    "0-25": "0-25",
+                    "26-50": "26-50",
+                    "51-75": "51-75",
+                    "76-100": "76-100"
+                }
+            },
+            "beneath_tree_sp": {
+                "type": "string",
+                "title": "If beneath tree/shrub, what species?",
+                "enum": [
+                    "Baldhip_rose",
+                    "Bigleaf_maple",
+                    "Bitter_cherry",
+                    "Black_cap_raspberry",
+                    "Black_cottonwood",
+                    "Black_gooseberry",
+                    "Black_hawthorn",
+                    "Ceanothus",
+                    "Devil's_club",
+                    "Douglas_alder",
+                    "Douglas_fir",
+                    "Douglas_hemlock",
+                    "Douglas_maple",
+                    "Elderberry",
+                    "Evergreen_huckleberry",
+                    "Fern_spp",
+                    "Grand_fir",
+                    "Hardhack",
+                    "Himalayan_blackberry",
+                    "Indian_plum",
+                    "Madrone",
+                    "Mountain_hemlock",
+                    "Mock-Orange",
+                    "N/A",
+                    "Nootka_rose",
+                    "Oceanspray",
+                    "Oregon_grape",
+                    "Pacific_ninebark",
+                    "Pacific_yew",
+                    "Pacific_crab_apple",
+                    "Red_alder",
+                    "Red-flowering_currant",
+                    "Red_osier_dogwood",
+                    "Rose_species",
+                    "Salal",
+                    "Salmonberry",
+                    "Serviceberry",
+                    "Sitka_spruce",
+                    "Snowberry",
+                    "Stink_currant",
+                    "Subalpine_fir",
+                    "Sword_fern",
+                    "Thimbleberry",
+                    "Trailing_blackberry",
+                    "Twin_Berry",
+                    "Unknown_spp",
+                    "Vaccinium",
+                    "Vine_maple",
+                    "Western_dogwood",
+                    "Western_hemlock",
+                    "Western_red_cedar",
+                    "Western_white_pine",
+                    "Wild_gooseberry",
+                    "Willow_spp"
+                ],
+                "enumNames": {
+                    "Baldhip_rose": "Baldhip rose",
+                    "Bigleaf_maple": "Bigleaf maple",
+                    "Bitter_cherry": "Bitter cherry",
+                    "Black_cap_raspberry": "Black cap raspberry",
+                    "Black_cottonwood": "Black cottonwood",
+                    "Black_gooseberry": "Black gooseberry",
+                    "Black_hawthorn": "Black hawthorn",
+                    "Ceanothus": "Ceanothus",
+                    "Devil's_club": "Devil's club",
+                    "Douglas_alder": "Douglas alder",
+                    "Douglas_fir": "Douglas fir",
+                    "Douglas_hemlock": "Douglas hemlock",
+                    "Douglas_maple": "Douglas maple",
+                    "Elderberry": "Elderberry",
+                    "Evergreen_huckleberry": "Evergreen huckleberry",
+                    "Fern_spp": "Fern spp",
+                    "Grand_fir": "Grand fir",
+                    "Hardhack": "Hardhack",
+                    "Himalayan_blackberry": "Himalayan blackberry",
+                    "Indian_plum": "Indian plum",
+                    "Madrone": "Madrone",
+                    "Mountain_hemlock": "Mountain hemlock",
+                    "Mock-Orange": "Mock-Orange",
+                    "N/A": "N/A",
+                    "Nootka_rose": "Nootka rose",
+                    "Oceanspray": "Oceanspray",
+                    "Oregon_grape": "Oregon Grape",
+                    "Pacific_ninebark": "Pacific ninebark",
+                    "Pacific_yew": "Pacific yew",
+                    "Pacific_crab_apple": "Pacific crab apple",
+                    "Red_alder": "Red alder",
+                    "Red-flowering_currant": "Red-flowering currant",
+                    "Red_osier_dogwood": "Red-osier dogwood",
+                    "Rose_species": "Rose species",
+                    "Salal": "Salal",
+                    "Salmonberry": "Salmonberry",
+                    "Serviceberry": "Serviceberry",
+                    "Sitka_spruce": "Sitka spruce",
+                    "Snowberry": "Snowberry",
+                    "Stink_currant": "Stink currant",
+                    "Subalpine_fir": "Subalpine fir",
+                    "Sword_fern": "Sword Fern",
+                    "Thimbleberry": "Thimbleberry",
+                    "Trailing_blackberry": "Trailing blackberry",
+                    "Twin_Berry": "Twin Berry",
+                    "Unknown_spp": "Unknown",
+                    "Vaccinium": "Vaccinium",
+                    "Vine_maple": "Vine maple",
+                    "Western_dogwood": "Western dogwood",
+                    "Western_hemlock": "Western hemlock",
+                    "Western_red_cedar": "Western red cedar",
+                    "Western_white_pine": "Western white pine",
+                    "Wild_gooseberry": "Wild gooseberry",
+                    "Willow_spp": "Willow spp"
+                }
+            },
+            "diameter_of_tree_cm": {
+                "type": "number",
+                "title": "Diameter of tree (cm)"
+            },
+            "general_comments": {
+                "type": "string",
+                "title": "General Comments"
+            }
+        },
+        "id": "https://pantheraolympicpenninsula.pamdas.org/api/v1.0/activity/events/schema/eventtype/bed",
+        "icon_id": "cougar_bed_rep",
+        "image_url": "https://pantheraolympicpenninsula.pamdas.org/static/sprite-src/cougar_bed_rep.svg"
+    },
+    "definition": [
+        {
+            "key": "cluster_id",
+            "htmlClass": "col-lg-6"
+        },
+        {
+            "key": "cougar_id",
+            "htmlClass": "col-lg-6"
+        },
+        {
+            "key": "multi_cluster_entry",
+            "htmlClass": "col-lg-6"
+        },
+        {
+            "key": "revisit",
+            "htmlClass": "col-lg-6"
+        },
+        {
+            "key": "visit_date",
+            "fieldHtmlClass": "date-time-picker json-schema",
+            "readonly": false
+        },
+        {
+            "key": "observers",
+            "type": "checkboxes",
+            "title": "Observers",
+            "titleMap": [
+                {
+                    "value": "Oliver-Hubbard",
+                    "name": "Oliver Hubbard"
+                },
+                {
+                    "value": "Bethany-Ackerman",
+                    "name": "Bethany Ackerman"
+                },
+                {
+                    "value": "Read-Barbee",
+                    "name": "Read Barbee"
+                },
+                {
+                    "value": "Matthew-Tom",
+                    "name": "Matthew Tom"
+                },
+                {
+                    "value": "Kurt-Zias",
+                    "name": "Kurt Zias"
+                },
+                {
+                    "value": "Josh-Barry",
+                    "name": "Josh-Barry"
+                },
+                {
+                    "value": "Dylan-Bergman",
+                    "name": "Dylan Bergman"
+                },
+                {
+                    "value": "Lora-Burke",
+                    "name": "Lora Burke"
+                },
+                {
+                    "value": "Jarrett-Burns",
+                    "name": "Jarrett Burns"
+                },
+                {
+                    "value": "Annabel-Brennan",
+                    "name": "Annabel-Brennan"
+                },
+                {
+                    "value": "Vanessa-Castle",
+                    "name": "Vanessa Castle"
+                },
+                {
+                    "value": "Sara-Cendejas-Zarelli",
+                    "name": "Sara Cendejas-Zarelli"
+                },
+                {
+                    "value": "Kevin-Della",
+                    "name": "Kevin Della"
+                },
+                {
+                    "value": "Mark-Elbroch",
+                    "name": "Mark Elbroch"
+                },
+                {
+                    "value": "Charin-Godbolt",
+                    "name": "Charin Godbolt"
+                },
+                {
+                    "value": "Deidre-Hayward",
+                    "name": "Deidre Hayward"
+                },
+                {
+                    "value": "Jeremiah-Johnson",
+                    "name": "Jer Johnson"
+                },
+                {
+                    "value": "Greg-Jones",
+                    "name": "Greg Jones"
+                },
+                {
+                    "value": "Russel-Jones",
+                    "name": "Russel Jones"
+                },
+                {
+                    "value": "Caitlin-Kupar",
+                    "name": "Caitlin Kupar"
+                },
+                {
+                    "value": "Cassandra-Laroche",
+                    "name": "Cassandra Laroche"
+                },
+                {
+                    "value": "Cameron-Macias",
+                    "name": "Cameron-Macias"
+                },
+                {
+                    "value": "Dave-Manson",
+                    "name": "Dave Manson"
+                },
+                {
+                    "value": "Rob-McCoy",
+                    "name": "Rob McCoy"
+                },
+                {
+                    "value": "Katie-McLean",
+                    "name": "Katie McLean"
+                },
+                {
+                    "value": "Shane-Miller",
+                    "name": "Shane Miller"
+                },
+                {
+                    "value": "Shannon-Murphie",
+                    "name": "Shannon Murphie"
+                },
+                {
+                    "value": "Ian-Olson",
+                    "name": "Ian Olson"
+                },
+                {
+                    "value": "Kristen-Phillips",
+                    "name": "Kristen Phillips"
+                },
+                {
+                    "value": "Franklin-Pope",
+                    "name": "Franklin Pope"
+                },
+                {
+                    "value": "Kim-Sager-Fradkin",
+                    "name": "Kim Sager-Fradkin"
+                },
+                {
+                    "value": "Mike-Sheldon",
+                    "name": "Mike Sheldon"
+                },
+                {
+                    "value": "Kim-Shelton",
+                    "name": "Kim-Shelton"
+                },
+                {
+                    "value": "Dave-Shreffler",
+                    "name": "Dave-Shreffler"
+                },
+                {
+                    "value": "Alexandra-Slusher",
+                    "name": "Alexandra Slusher"
+                },
+                {
+                    "value": "Andy-Stratton",
+                    "name": "Andy Stratton"
+                },
+                {
+                    "value": "Chris-Hickling",
+                    "name": "Chris Hickling"
+                },
+                {
+                    "value": "Corrie_Rushford",
+                    "name": "Corrie Rushford"
+                },
+                {
+                    "value": "elsa-heath",
+                    "name": "Elsa Heath"
+                },
+                {
+                    "value": "Garrett-Sittingdog",
+                    "name": "Garrett Sitting Dog"
+                },
+                {
+                    "value": "lindsay-petrillo",
+                    "name": "Lindsay Petrillo"
+                },
+                {
+                    "value": "Maddie_Holden",
+                    "name": "Maddie Holden"
+                },
+                {
+                    "value": "Matt_Mahan",
+                    "name": "Matt Mahan"
+                },
+                {
+                    "value": "Rebecca-Peterson",
+                    "name": "Rebecca-Peterson"
+                },
+                {
+                    "value": "Shannon-Murphy",
+                    "name": "Shannon-Murphy"
+                },
+                {
+                    "value": "Tori-Cantelow",
+                    "name": "Tori Cantelow"
+                }
+            ],
+            "inactive_titleMap": [
+                "Josh-Barry",
+                "Annabel-Brennan",
+                "Cameron-Macias",
+                "Kim-Shelton",
+                "Dave-Shreffler",
+                "Shannon-Murphy",
+                "Rebecca-Peterson"
+            ]
+        },
+        {
+            "key": "first_date_time",
+            "fieldHtmlClass": "date-time-picker json-schema",
+            "readonly": false
+        },
+        {
+            "key": "last_date_time",
+            "fieldHtmlClass": "date-time-picker json-schema",
+            "readonly": false
+        },
+        {
+            "key": "num_points",
+            "htmlClass": "col-lg-6"
+        },
+        {
+            "key": "general_location",
+            "type": "textarea"
+        },
+        {
+            "key": "habitat",
+            "type": "checkboxes",
+            "title": "Habitat",
+            "titleMap": [
+                {
+                    "value": "Bog",
+                    "name": "Bog"
+                },
+                {
+                    "value": "Clearcut",
+                    "name": "Clearcut"
+                },
+                {
+                    "value": "Cliffy/Rocky",
+                    "name": "Cliffy/Rocky"
+                },
+                {
+                    "value": "Coast",
+                    "name": "Coast"
+                },
+                {
+                    "value": "Conifer_forest",
+                    "name": "Conifer Forest"
+                },
+                {
+                    "value": "Deciduous_forest",
+                    "name": "Deciduous Forest"
+                },
+                {
+                    "value": "Marsh",
+                    "name": "Marsh"
+                },
+                {
+                    "value": "Meadow",
+                    "name": "Meadow"
+                },
+                {
+                    "value": "Mixed_forest",
+                    "name": "Mixed Forest"
+                },
+                {
+                    "value": "N/A",
+                    "name": "N/A"
+                },
+                {
+                    "value": "Other",
+                    "name": "Other (in comments)"
+                },
+                {
+                    "value": "Reprod",
+                    "name": "Reprod"
+                },
+                {
+                    "value": "Riparian/Riverine",
+                    "name": "Riparian/Riverine"
+                },
+                {
+                    "value": "Roadbed",
+                    "name": "Roadbed"
+                },
+                {
+                    "value": "Swamp",
+                    "name": "Swamp"
+                },
+                {
+                    "value": "Edge",
+                    "name": "Edge"
+                },
+                {
+                    "value": "developed",
+                    "name": "developed"
+                }
+            ]
+        },
+        {
+            "key": "est_stand_age",
+            "htmlClass": "col-lg-6"
+        },
+        {
+            "key": "dominant_overstory",
+            "htmlClass": "col-lg-6"
+        },
+        {
+            "key": "dominant_understory",
+            "htmlClass": "col-lg-6"
+        },
+        {
+            "key": "area_cover",
+            "htmlClass": "col-lg-6"
+        },
+        {
+            "key": "canopy_cover",
+            "htmlClass": "col-lg-6"
+        },
+        {
+            "key": "latitude",
+            "htmlClass": "col-lg-6"
+        },
+        {
+            "key": "longitude",
+            "htmlClass": "col-lg-6"
+        },
+        {
+            "key": "associated_with_kill",
+            "htmlClass": "col-lg-6"
+        },
+        {
+            "key": "bed_site_description",
+            "type": "textarea"
+        },
+        {
+            "key": "canopy_cover_over_bed",
+            "htmlClass": "col-lg-6"
+        },
+        {
+            "key": "beneath_tree_sp",
+            "htmlClass": "col-lg-6"
+        },
+        {
+            "key": "diameter_of_tree_cm",
+            "htmlClass": "col-lg-6"
+        },
+        {
+            "key": "general_comments",
+            "type": "textarea"
+        }
+    ]
+}

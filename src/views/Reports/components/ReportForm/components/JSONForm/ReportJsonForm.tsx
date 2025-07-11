@@ -42,9 +42,15 @@ export const ReportJsonForm = ({
   const [jsonSchema, setJsonSchema] = useState<any>({});
   const [uiSchema, setUiSchema] = useState<any>();
   const [isValidSchema, setIsValidSchema] = useState<boolean | undefined>(undefined);
-
+  const [inputData, setInputData] = useState<any>(draftData);
+  const [key, setKey] = useState(0);
   // References
   const ajv = useRef(createAjv({ useDefaults: true })).current;
+
+  useEffect(() => {
+    setInputData({ ...inputData, ...draftData });
+    setKey(key+1);
+  }, [draftData]);
 
   useEffect(() => {
     const initJsonForm = async () => {
@@ -61,7 +67,9 @@ export const ReportJsonForm = ({
         });
 
         if (draftData) {
-          setReportFormData(draftData);
+          // setReportFormData({...inputData});
+          console.log("bbruh", draftData)
+          setInputData({...draftData});
         }
         setIsValidSchema(true);
       } catch (error) {
@@ -86,14 +94,16 @@ export const ReportJsonForm = ({
       {
         isValidSchema && (
           <JsonForms
+            key={key}
             schema={jsonSchema}
             uischema={uiSchema}
-            data={draftData ?? {}}
+            data={{...inputData} ?? {}}
             renderers={RNRenderers}
             cells={RNCells}
             onChange={({ data, errors }) => {
               validateFormIsEmpty(data);
               setSchemaErrors(errors);
+              // console.log("change", data)
               setReportFormData(data);
             }}
             ajv={ajv}

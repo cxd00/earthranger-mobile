@@ -1,6 +1,8 @@
 /* eslint-disable global-require */
 // External Dependencies
-import React, { useState, useEffect } from 'react';
+import React, { 
+  useState, useEffect, Dispatch, SetStateAction 
+} from 'react';
 import {
   View, Pressable, Text,
 } from 'react-native';
@@ -8,23 +10,163 @@ import {
 // Dictation dependencies
 import { initLlama, LlamaContext } from 'llama.rn';
 import RNFS, { exists, mkdir } from 'react-native-fs';
+import Fuse from 'fuse.js';
 
 // Internal Dependencies
+import { validateJSONSchema } from '@earthranger/react-native-jsonforms-formatter';
 
 // Styles
 import style from '../Login/components/LoginForm/LoginForm.styles';
 
 interface SummarizationModuleProps {
   dictationString: string;
+  schema: any;
+  setFormEditData: Dispatch<SetStateAction<{ [key: string]: any }>>;
 }
 
-const SummarizationModule = ({ dictationString }: SummarizationModuleProps) => {
+// const systemPrompt = "Cutting Knowledge Date: December 2023\nToday Date: 13 Jun 2025\n\nYou are a helpful chatbot who converts audio transcripts from rangers doing wildlife surveys into a list of keys and values. Here are the definitions of the keys you should know:\ncluster_id: ID of the cluster, cougar_id: ID of the cougar, multi_cluster_entry: Whether this cluster is associated with another cluster, revisit: Whether this is a revisit of a site, visit_date: Date of the visit, observers: Ranger making the report., first_date_time: First Date/Time of the cluster, last_date_time: Last Date/Time of the cluster, num_points: Number of points/fixes in the cluster, general_location: General Location, habitat: Habitat type, est_stand_age: Estimated Age of the forest stand in years, dominant_overstory: Dominant Overstory species, dominant_understory: Dominant Understory species, area_cover: Area over which the carcass is spread, canopy_cover: Percent canopy Cover, canopy_cover_over_bed: Percent canopy cover over the bed or kill, prey_species: Prey Species, tissue_sample: Whether a tissue sample was taken, latitude: Latitude, longitude: Longitude, prey_sex: Sex of the prey, young_in_utero: Whether there was an unborn animal in the prey, prey_age: Age of the prey, carcass_cached: Whether the carcass was cached, cached_with: What the prey was cached with, carcass_hidden: Whether the carcass was hidden, drag_mark: Whether a drag mark was observed, distance_dragged_m: The distance the prey was dragged, blood_or_hair_in_drag: Whether there was blood or hair in drag marks, days_between: Days between carcass abandonment and examination, utilization: Percent of Carcass eaten, marrow_consistency: Marrow Consistency, marrow_color: Marrow Color, scavenger_sign_present: Whether signs of savengers were present, scavenger_species: Species of scavenger, scavenger_obs_type: Type of scavenger observed, scavenger_obs_description: Description of observations of the scavenger, displaced: Whether the cat was displaced from its kill, displaced_by: What displaced the cat, camera_deployed: Whether a camera was deployed, general_comments: Extra commentary on the observation, beneath_tree_sp: Species of tree over cougar bed, diameter_of_tree_cm: Diameter of tree over cougar bed in centimeters, associated_with_kill: Whether the bed site is associated with a nearby kill.\nYou must only include keys and values found in the given transcript. Be concise. Do not repeat any keys.";
+
+const SummarizationModule = ({ dictationString, schema, setFormEditData }: SummarizationModuleProps) => {
   // Components State
+  var systemPrompt = '';
   const [isSummarizing, setIsSummarizing] = useState<Boolean>(false);
   const [modelIsLoading, setModelIsLoading] = useState<Boolean>(false);
   const [context, setContext] = useState<LlamaContext | undefined>(undefined);
   // const [messages, setMessages] = useState<string[]>([]);
   const [buttonText, setButtonText] = useState<string>('Press to begin.');
+  // const [modelName, setModelName] = useState<string>('');
+
+  // parse text output carefully
+  const parseOutput = (txt: string) => {
+    console.log("raw", txt);
+    let splitText = txt.split('\n');
+    let realText = splitText.reduce(function(a, b) {
+      return a.length > b.length ? a : b
+    });
+    // const pattern = new RegExp('(\[a-zA-Z_\]+):\\s*(\\[[^\\]]*\\]|[^\\[\\],]+)', 'g');
+    realText = realText.replace(/(?<=\d):(?=\d)/g, '-').replace(/(?<=\d)\,\s(?=\d)/g, ' ');
+    // console.log("raw", realText);
+    const pattern = /(\[a-zA-Z_\]+):\\s*(\{([^{}]+)\}|\\[[^\\]]*\\]|[^\\[\\],]+)/g;
+    let dataDraft : { [key: string]: string } = {};
+    Array.from(realText.matchAll(pattern)).map((t) => {
+      let key = `${t[1]}`;
+      if (key.includes('date')) {
+        let dateObj : {[key: string]: number} = {};
+        Array.from(t[2].replace(/[\{\}]/g, '').matchAll(pattern)).map((u) => {
+          dateObj[u[1]] = parseInt(u[2]);
+          if (u[1]=='month') {dateObj[u[1]] = dateObj[u[1]]-1} 
+        });
+        console.log(dateObj);
+        let date = new Date(dateObj['year'], dateObj['month'], dateObj['day']);
+        if ('hour' in dateObj) {date.setHours(dateObj['hour'])}
+        if ('minute' in dateObj) {date.setMinutes(dateObj['minute'])}
+        // console.log(date, t[2]);
+        dataDraft[key] = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+      } else {
+        dataDraft[key] = t[2];
+      }
+    })
+
+    return dataDraft;
+  };
+
+  const validateGenData = (txt: string, schemaString: string) => {
+    let schema = validateJSONSchema(schemaString);
+    let data = parseOutput(txt);
+    let validData: {[key: string]: any} = {};
+    for (const key in data) {
+      console.log("seeing", key);
+      
+      let newKey: string;
+      if (!schema?.schema?.properties && !schema?.properties ) {console.log(typeof schema, schema["$schema"])}
+      if (!(Object.hasOwn(schema?.schema?.properties || schema?.properties, key))) { // if the key is wrong...
+        let options = {
+          includeScore: true,
+          keys: ['key'],
+          ignoreFieldNorm: true,
+        };
+        const fuse = new Fuse(schema?.['definition'], options);
+        const searchResult = fuse.search(key);
+        
+        if (searchResult && searchResult[0] && searchResult[0]?.score && searchResult[0].score < 0.3) {
+          // sufficiently low to take the first one
+          newKey = searchResult[0].item.key;
+          console.log("new key", newKey);
+        } else {
+          console.log(searchResult);
+          continue;
+        }
+      } else {
+        newKey = key;
+      }
+      // once key is found, 
+      // find closest match for all enums and titles
+      if (schema?.schema?.properties[newKey]?.enumNames || schema?.schema?.properties[newKey]?.items?.enum || schema?.dictionary?.find((elt) => {
+        return elt.key === 'multi_select_field';
+      })) { 
+        // for all select fields
+        let splitArray;
+        let isMulti;
+        if (data[key].includes('[')) {  // check for multiple entries
+          splitArray = data[key].split(',').map((word: string) => { return word.replace(/^[^a-zA-Z0-9]+|[^a-zA-Z0-9]+$/g, ''); });
+          isMulti = true;
+        } else if (Array.isArray(data[key])) {
+          splitArray = data[key];
+          isMulti = true;
+        } else {
+          splitArray = [data[key]];
+          isMulti = false;
+        }
+
+        let optionsArray;
+        if (schema?.schema?.properties[newKey]?.enum) { // if you want to check through select values
+          optionsArray = schema?.schema?.properties[newKey]?.enum;
+        } else if (schema?.schema?.properties[newKey]?.items?.enum) {
+          optionsArray = schema?.schema?.properties[newKey]?.items?.enum;
+        } else {
+          optionsArray = schema?.definition?.find((elt) => { return elt.key == newKey })?.titleMap.map((k) => {return k.value});
+        }
+        console.log("Obtained optionsArray", newKey, splitArray, isMulti);
+        // optionsArray = schema?.schema?.properties[newKey]?.enumNames || schema?.schema?.definition.find((elt) => {return elt.key == newKey}).titleMap.map((k) => {return value});
+        splitArray = splitArray.map((elt: string) => {
+          if (optionsArray.includes(elt)) {
+            return elt;
+          }
+          const options = {
+            includeScore: true,
+            isCaseSensitive: false,
+            ignoreFieldNorm: true,
+          };
+          let fuse = new Fuse(optionsArray, options);
+          let searchResult = fuse.search(elt);
+          if (searchResult && searchResult[0] && searchResult[0]?.score < 0.5) {
+            return searchResult[0].item;
+          }
+          return null;
+        }).filter((elt) => { if (elt) { return true; } else { return false; } });
+        if (splitArray.length < 1) {
+          continue;
+        } else if (!isMulti && splitArray.length === 1) {
+          validData[newKey] = splitArray[0];
+        } else {
+          validData[newKey] = splitArray;
+        }
+      } else {  // or if it's a free-entry field, check to make sure the type is right
+        let entryType = schema?.schema?.properties[newKey]?.type ? schema?.schema?.properties[newKey]?.type : schema?.schema?.properties[newKey]?.newKey;
+        // var output;
+        if (!entryType) {continue;}
+        if (entryType == 'number') {
+          validData[newKey] = parseInt(`${data[key]}`.replace(/[^0-9]/g, ''));
+        } else {
+          validData[newKey] = `${data[key]}`;
+        }
+      }
+    }
+    console.log("inner", validData);
+    validData['visit_date'] = new Date().toISOString();
+    setFormEditData({...validData});
+    return validData 
+  };
 
   // handle picking the model & dealing with gguf context
   const handleReleaseContext = async () => {
@@ -46,6 +188,7 @@ const SummarizationModule = ({ dictationString }: SummarizationModuleProps) => {
     console.log('Initializing context...', modelFile);
     initLlama({
       model: modelFile,
+      n_ctx: 4096,
       use_mlock: true,
       n_gpu_layers: 0,
     })
@@ -64,7 +207,7 @@ const SummarizationModule = ({ dictationString }: SummarizationModuleProps) => {
     const modelDir = `${RNFS.DocumentDirectoryPath}/models`;
     const modelDirExists = await exists(modelDir);
     console.log('Model dir', modelDir, 'exists');
-    const modelName = [modelDir, 'llama3.2-1b.gguf'].join('/');
+    const modelName = [modelDir, 'panthera-llm.gguf'].join('/');
     if (!modelDirExists) {
       try {
         await mkdir(modelDir);
@@ -77,7 +220,7 @@ const SummarizationModule = ({ dictationString }: SummarizationModuleProps) => {
     if (!modelExists) {
       try {
         await RNFS.downloadFile({
-          fromUrl: 'https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q6_K.gguf?download=true',
+          fromUrl: 'https://huggingface.co/cxd00/panthera-llm/resolve/main/panthera-llm.gguf?download=true',
           toFile: modelName,
         })
           .promise.then((response) => {
@@ -90,59 +233,44 @@ const SummarizationModule = ({ dictationString }: SummarizationModuleProps) => {
         console.log('Could not download model:', error);
       }
     }
+    RNFS.stat(modelName)
+      .then((stats) => {console.log(stats.size);})
+      .catch((err) => {})
     await handleInitContext(modelName);
     setModelIsLoading(false);
   };
 
   const queryModel = async (message: string) => {
-    const msgs = [{
-      role: 'system',
-      content: 'This is a conversation between user and assistant, a friendly chatbot.\n\n',
-    }, {
-      role: 'user',
-      content: 'You are a JSON summarization assistant. Summarize any input given to you as a JSON object and return the object. Be precise and succinct. Do not output anything other than the JSON object.\n\n',
-    }, {
-      role: 'user',
-      content: `${message}\n\n`,
-    }];
+    // await handleModelSetup();
+    systemPrompt = `<|start_header_id|>system<|end_header_id|>\n\nCutting Knowledge Date: December 2023\nToday Date: 13 Jun 2025\n\nYou are a helpful chatbot who converts audio transcripts from rangers doing wildlife surveys into a list of keys and values. Here are the definitions of the keys you should know:\ncluster_id: ID of the cluster, cougar_id: ID of the cougar, multi_cluster_entry: Whether this cluster is associated with another cluster, revisit: Whether this is a revisit of a site, observers: Ranger making the report., first_date_time: First Date/Time of the cluster, last_date_time: Last Date/Time of the cluster, num_points: Number of points/fixes in the cluster, general_location: General Location, habitat: Habitat type, est_stand_age: Estimated Age of the forest stand in years, dominant_overstory: Dominant Overstory species, dominant_understory: Dominant Understory species, area_cover: Area over which the carcass is spread, canopy_cover: Percent canopy Cover, canopy_cover_over_bed: Percent canopy cover over the bed or kill, prey_species: Prey Species, tissue_sample: Whether a tissue sample was taken, latitude: Latitude, longitude: Longitude, prey_sex: Sex of the prey, young_in_utero: Whether there was an unborn animal in the prey, prey_age: Age of the prey, carcass_cached: Whether the carcass was cached, cached_with: What the prey was cached with, carcass_hidden: Whether the carcass was hidden, drag_mark: Whether a drag mark was observed, distance_dragged_m: The distance the prey was dragged, blood_or_hair_in_drag: Whether there was blood or hair in drag marks, days_between: Days between carcass abandonment and examination, utilization: Percent of Carcass eaten, marrow_consistency: Marrow Consistency, marrow_color: Marrow Color, scavenger_sign_present: Whether signs of savengers were present, scavenger_species: Species of scavenger, scavenger_obs_type: Type of scavenger observed, scavenger_obs_description: Description of observations of the scavenger, displaced: Whether the cat was displaced from its kill, displaced_by: What displaced the cat, camera_deployed: Whether a camera was deployed, general_comments: Extra commentary on the observation, beneath_tree_sp: Species of tree over cougar bed, diameter_of_tree_cm: Diameter of tree over cougar bed in centimeters, associated_with_kill: Whether the bed site is associated with a nearby kill.\n Format all datetimes as '%Y-%m-%dT%H:%m'. You must only include keys and values found in the given transcript. Be concise. Do not repeat any keys.<|eot_id|><|start_header_id|>user<|end_header_id|>\n\n${message}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n`;
 
-    setIsSummarizing(true);
+    if (context) {
+      setIsSummarizing(true);
+    }
+
     context
       ?.completion(
-        {
-          messages: msgs,
-          n_predict: 100,
-          xtc_probability: 0.5,
-          xtc_threshold: 0.1,
-          temperature: 0.1,
-          top_k: 40, // <= 0 to use vocab size
-          top_p: 0.5, // 1.0 = disabled
-          typical_p: 1.0, // 1.0 = disabled
-          penalty_last_n: 256, // 0 = disable penalty, -1 = context size
-          penalty_repeat: 1.18, // 1.0 = disabled
-          penalty_freq: 0.0, // 0.0 = disabled
-          penalty_present: 0.0, // 0.0 = disabled
-          mirostat: 0, // 0/1/2
-          mirostat_tau: 5, // target entropy
-          mirostat_eta: 0.1, // learning rate
-          penalize_nl: false, // penalize newlines
-          seed: -1, // random seed
-          n_probs: 0, // Show probabilities
-          stop: [
-            '</s>',
-            '<|end|>',
-            '<|eot_id|>',
-            '<|end_of_text|>',
-            '<|im_end|>',
-            '<|EOT|>',
-            '<|END_OF_TURN_TOKEN|>',
-            '<|end_of_turn|>',
-            '<|endoftext|>',
-          ],
-        },
+          {
+            prompt: systemPrompt,
+            n_predict: 256,
+            stop: ['<|eot_id|>', '<|end_header_id|>'],
+            temperature: 0,
+            top_p: 0.3,
+            top_k: 20,
+            min_p: 0.05,
+            penalty_last_n: 64,
+            penalty_repeat: 1.0,
+            penalty_present: 0,
+            penalty_freq: 0,
+            xtc_probability: 0,
+            xtc_threshold: 0.1,
+            typical_p: 1,
+          }
       )
       .then((completionResult) => {
-        console.log('completionResult: ', completionResult.text);
+        console.log('completionResult: ', completionResult);
+        validateGenData(completionResult.text, schema);
+        // setFormEditData(validData);
         const timings = `${completionResult.timings.predicted_per_token_ms.toFixed()}ms per token, ${completionResult.timings.predicted_per_second.toFixed(
           2,
         )} tokens per second`;
@@ -151,6 +279,7 @@ const SummarizationModule = ({ dictationString }: SummarizationModuleProps) => {
       })
       .catch((e) => {
         console.log('completion error: ', e);
+        setIsSummarizing(false);
       });
   };
 
@@ -186,7 +315,7 @@ const SummarizationModule = ({ dictationString }: SummarizationModuleProps) => {
     <View style={style.buttonContainer}>
       <Pressable
         style={[style.button,
-          (!context || isSummarizing || modelIsLoading || !dictationString) ? style.buttonDisabled : null]}
+          (!context || isSummarizing || modelIsLoading) && !(!context && !isSummarizing && !modelIsLoading) ? style.buttonDisabled : null]}
         onPress={() => handleModelButton(dictationString)}
         testID="LoginView-TalkButton"
       >

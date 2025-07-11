@@ -55,6 +55,7 @@ const RepeatableFieldRenderer = ({
   useEffect(() => {
     const eventListener = eventEmitter.addListener(rendererId, (newData: any) => {
       setRepeatableFormData(newData);
+      console.log("new moves", newData);
     });
 
     return () => {
@@ -64,6 +65,7 @@ const RepeatableFieldRenderer = ({
 
   useEffect(() => {
     handleChange(path, repeatableFormData);
+    console.log("CHANGE");
   }, [repeatableFormData]);
 
   const onFieldPressed = () => {

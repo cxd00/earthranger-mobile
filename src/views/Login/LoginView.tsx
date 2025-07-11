@@ -44,7 +44,7 @@ import { createLoginSuccessEvent } from '../../analytics/login/loginAnalytics';
 import { screenViewEventToHashMap } from '../../analytics/model/analyticsScreenView';
 import createScreenViewEvent from '../screenViewTracker/screenViewTracker';
 import { LoginForm } from './components/LoginForm/LoginForm';
-import { DictationModule } from '../Dictation/DictationModule';
+import { WhisperModule } from '../Dictation/WhisperModule';
 import { InitialState } from '../../common/types/redux';
 import { getSession } from '../../common/data/storage/session';
 import {
@@ -253,7 +253,7 @@ const LoginView = ({
                 userAccountErrorMessage={userAccountErrorMessage}
                 onSubmit={() => setIsLoading(true)}
               />
-              <DictationModule />
+              {/* <DictationModule /> */}
             </View>
             {/* End Main Container */}
             <CustomAlert

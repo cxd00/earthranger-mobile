@@ -8,13 +8,14 @@ import {
 } from 'react-native';
 
 // Dictation dependencies
-import Vosk from 'react-native-vosk';
+// import Vosk from 'react-native-vosk';
+// import { initWhisper } from 'whisper.rn';
 
 // Internal Dependencies
 import { SummarizationModule } from './SummarizationModule';
 
 // Styles
-import style from '../Login/components/LoginForm/LoginForm.styles';
+import style from './Dictation.styles';
 
 const DictationModule = () => {
   // Components State
