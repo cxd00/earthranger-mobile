@@ -176,7 +176,7 @@ const ReportForm = () => {
   } = route.params;
 
   // References
-  const reportTypeId = useRef(typeId).current;
+  const reportTypeId: number = Math.floor(Date.now() / 1000);
   const reportTitle = useRef(cropHeaderTitleText(title, 5)).current;
   // eslint-disable-next-line max-len
   const isDefaultPatrolInfoEnabled = useRef(route.params.isDefaultPatrolInfoEnabled || false).current;
@@ -266,12 +266,12 @@ const ReportForm = () => {
     if (experimentNoteId >= 0) { // not new
       noteId = experimentNoteId;
       console.log("a", noteId);
-      updateNote(noteId, `${dictationOutput}\n\n${JSON.stringify(formEditData)}`, noteId-1);
+      updateNote(noteId, `${reportTypeId}\n${dictationOutput}\n\n${JSON.stringify(formEditData)}`, noteId-1);
     } else { // new dictation
       noteId = notesIdCounter + 1;
       setNotesIdCounter(noteId);
       console.log("b", noteId);
-      createNote(noteId, `${dictationOutput}\n\n${JSON.stringify(formEditData)}`);
+      createNote(noteId, `${reportTypeId}\n${dictationOutput}\n\n${JSON.stringify(formEditData)}`);
       setExperimentNoteId(noteId);
     }
   }, [dictationOutput, isTranscribing, formEditData]);
@@ -280,7 +280,6 @@ const ReportForm = () => {
   useEffect(() => {
     console.log("start note", notesChannelId);
     const eventListener = eventEmitter.addListener(notesChannelId, (note: Note) => {
-      console.log(note);
       const noteUpdate = notesDataSource.find((item) => (item.id === note.id));
       if (noteUpdate) {
         const index = notesDataSource.indexOf(noteUpdate);
@@ -394,25 +393,25 @@ const ReportForm = () => {
     }
   }, [route]));
 
-  useEffect(() => {
-    if (isEditMode) {
-      if (draftViewFinishedLoading) {
-        scrollViewRef.current?.scrollTo({ y: coordinatesOfScreenElements[0] });
-      }
-    } else {
-      scrollViewRef.current?.scrollTo({ y: coordinatesOfScreenElements[0] });
-    }
-  }, [notesDataSource]);
+  // useEffect(() => {
+  //   if (isEditMode) {
+  //     if (draftViewFinishedLoading) {
+  //       scrollViewRef.current?.scrollTo({ y: coordinatesOfScreenElements[0] });
+  //     }
+  //   } else {
+  //     scrollViewRef.current?.scrollTo({ y: coordinatesOfScreenElements[0] });
+  //   }
+  // }, [notesDataSource]);
 
-  useEffect(() => {
-    if (isEditMode) {
-      if (draftViewFinishedLoading) {
-        scrollViewRef.current?.scrollTo({ y: coordinatesOfScreenElements[1] });
-      }
-    } else {
-      scrollViewRef.current?.scrollTo({ y: coordinatesOfScreenElements[1] });
-    }
-  }, [thumbnails]);
+  // useEffect(() => {
+  //   if (isEditMode) {
+  //     if (draftViewFinishedLoading) {
+  //       scrollViewRef.current?.scrollTo({ y: coordinatesOfScreenElements[1] });
+  //     }
+  //   } else {
+  //     scrollViewRef.current?.scrollTo({ y: coordinatesOfScreenElements[1] });
+  //   }
+  // }, [thumbnails]);
 
   // Report Handlers
   const onReportSubmitPressHandler = async () => {
