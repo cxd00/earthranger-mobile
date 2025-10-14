@@ -43,10 +43,10 @@ const SummarizationModule = ({ dictationString, schema, setFormEditData }: Summa
     let realText = splitText.reduce(function(a, b) {
       return a.length > b.length ? a : b
     });
-    // const pattern = new RegExp('(\[a-zA-Z_\]+):\\s*(\\[[^\\]]*\\]|[^\\[\\],]+)', 'g');
+    const pattern = new RegExp('(\[a-zA-Z_\]+):\\s*(\\[[^\\]]*\\]|[^\\[\\],]+)', 'g');
     realText = realText.replace(/(?<=\d):(?=\d)/g, '-').replace(/(?<=\d)\,\s(?=\d)/g, ' ');
-    // console.log("raw", realText);
-    const pattern = /(\[a-zA-Z_\]+):\\s*(\{([^{}]+)\}|\\[[^\\]]*\\]|[^\\[\\],]+)/g;
+    // const pattern = /(\[a-zA-Z_\]+):\\s*(\{([^{}]+)\}|\\[[^\\]]*\\]|[^\\[\\],]+)/g;
+    console.log(realText.matchAll(pattern), "pm");
     let dataDraft : { [key: string]: string } = {};
     Array.from(realText.matchAll(pattern)).map((t) => {
       let key = `${t[1]}`;
