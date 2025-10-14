@@ -169,9 +169,15 @@ android {
         }
     }
 
-    // signingConfigs {
+    signingConfigs {
 
-    //     release {
+        release {
+		if (project.hasProperty('MYAPP_UPLOAD_STORE_FILE')) {
+			storeFile file(MYAPP_UPLOAD_STORE_FILE)
+			storePassword MYAPP_UPLOAD_STORE_PASSWORD
+			keyAlias MYAPP_UPLOAD_KEY_ALIAS
+			keyPassword MYAPP_UPLOAD_KEY_PASSWORD
+		}
     //         keyAlias localProperties['KEY_ALIAS']
     //         keyPassword getSigningKeyPassword()
     //         storeFile file(localProperties['KEY_FILE'])
@@ -183,9 +189,26 @@ android {
     //         keyPassword getPreviewSigningKeyPassword()
     //         storeFile file(localProperties['PREVIEW_KEY_FILE'])
     //         storePassword getPreviewKeystorePassword()
-    //     }
+        }
 
-    // }
+    }
+    
+    flavorDimensions "organization"
+    productFlavors {
+        panthera {
+            dimension "organization"
+            applicationIdSuffix ".panthera"
+            versionNameSuffix "-panthera"
+            resValue "string", "app_name", "Panthera ER"
+        }
+
+        gcf {
+            dimension "organization"
+            applicationIdSuffix ".gcf"
+            versionNameSuffix "-gcf"
+            resValue "string", "app_name", "GCF ER"
+        }
+    }
 
     buildTypes {
         debug {
@@ -205,7 +228,7 @@ android {
         }
 
         release {
-            // signingConfig signingConfigs.release
+            signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
 
             firebaseCrashlytics {
