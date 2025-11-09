@@ -23,27 +23,60 @@ def extract_coords(json_str):
 
 
 def parse_log(log_content):
-    pattern = r'(\d{2}:\d{2}:\d{2}).*?Location tracked.*?(\{.*?"coords":\s*\{.*?"latitude":[^}]+\}.*?\})'
-    matches = re.findall(pattern, log_content, re.DOTALL | re.IGNORECASE)
-
-    print(f"Found {len(matches)} matching entries")
+    # Split into lines and find "Location tracked" entries
+    lines = log_content.split('\n')
 
     coordinates = []
     properties = []
 
-    for timestamp, match in matches:
-        coords = extract_coords(match)
-        if coords:
-            coordinates.append([coords['longitude'], coords['latitude']])
-            properties.append({
-                'timestamp': coords.get('timestamp', timestamp),
-                'heading': coords.get('heading'),
-                'speed': coords.get('speed'),
-                'accuracy': coords.get('accuracy'),
-                'uuid': coords.get('uuid')
-            })
-        else:
-            print(f"Could not extract coordinates at {timestamp}")
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+
+        # Look for "Location tracked ->" pattern
+        if 'Location tracked ->' in line:
+            # Extract timestamp from the log line (format: "H:MM:SS AM/PM")
+            timestamp_match = re.search(r'(\d{1,2}:\d{2}:\d{2}\s*[AP]M)', line)
+            timestamp = timestamp_match.group(1) if timestamp_match else "unknown"
+
+            # The JSON starts on the next line
+            json_start = i + 1
+            if json_start < len(lines) and lines[json_start].strip().startswith('{'):
+                # Find the matching closing brace
+                brace_count = 0
+                json_lines = []
+                j = json_start
+
+                while j < len(lines):
+                    json_lines.append(lines[j])
+                    # Count braces to find the end of the JSON object
+                    for char in lines[j]:
+                        if char == '{':
+                            brace_count += 1
+                        elif char == '}':
+                            brace_count -= 1
+                            if brace_count == 0:
+                                # Found the end of the JSON object
+                                json_str = '\n'.join(json_lines)
+                                coords = extract_coords(json_str)
+                                if coords:
+                                    coordinates.append([coords['longitude'], coords['latitude']])
+                                    properties.append({
+                                        'timestamp': coords.get('timestamp', timestamp),
+                                        'heading': coords.get('heading'),
+                                        'speed': coords.get('speed'),
+                                        'accuracy': coords.get('accuracy'),
+                                        'uuid': coords.get('uuid')
+                                    })
+                                else:
+                                    print(f"Could not extract coordinates at {timestamp}")
+                                i = j  # Skip to the end of this JSON object
+                                break
+                    j += 1
+                    if brace_count == 0:
+                        break
+
+        i += 1
 
     print(f"Successfully processed {len(coordinates)} entries")
     return coordinates, properties
