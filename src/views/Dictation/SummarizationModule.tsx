@@ -15,6 +15,7 @@ import Fuse from 'fuse.js';
 // Internal Dependencies
 import { validateJSONSchema } from '@earthranger/react-native-jsonforms-formatter';
 import { IS_ANDROID } from '../../common/constants/constants';
+import { SITE } from '../../api/EarthRangerService';
 
 // Styles
 import style from '../Login/components/LoginForm/LoginForm.styles';
@@ -35,6 +36,7 @@ const SummarizationModule = ({ dictationString, schema, setFormEditData }: Summa
   const [context, setContext] = useState<LlamaContext | undefined>(undefined);
   // const [messages, setMessages] = useState<string[]>([]);
   const [buttonText, setButtonText] = useState<string>('Press to begin.');
+  const site = SITE.name;
   // const [modelName, setModelName] = useState<string>('');
 
   // parse text output carefully
@@ -49,7 +51,21 @@ const SummarizationModule = ({ dictationString, schema, setFormEditData }: Summa
     let dataDraft : { [key: string]: string } = {};
     Array.from(realText.matchAll(pattern)).map((t) => {
       let key = `${t[1]}`;
-      dataDraft[key] = t[2];
+      if (key.includes('date')) {
+        let dateObj : {[key: string]: number} = {};
+        Array.from(t[2].replace(/[\{\}]/g, '').matchAll(pattern)).map((u) => {
+          dateObj[u[1]] = parseInt(u[2]);
+          if (u[1]=='month') {dateObj[u[1]] = dateObj[u[1]]-1} 
+        });
+        console.log(dateObj);
+        let date = new Date(dateObj['year'], dateObj['month'], dateObj['day']);
+        if ('hour' in dateObj) {date.setHours(dateObj['hour'])}
+        if ('minute' in dateObj) {date.setMinutes(dateObj['minute'])}
+        // console.log(date, t[2]);
+        dataDraft[key] = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+      } else {
+        dataDraft[key] = t[2];
+      }
     })
 
     return dataDraft;
@@ -66,9 +82,9 @@ const SummarizationModule = ({ dictationString, schema, setFormEditData }: Summa
     };
     let data = parseOutput(txt);
     let validData: {[key: string]: any} = {};
-    console.log("schema", schema);
+    // console.log("schema", schema);
     for (const key in data) {
-      console.log("seeing", key);
+      // console.log("seeing", key);
       
       let newKey: string;
       if (!schema?.schema?.properties && !schema?.properties ) {console.log(typeof schema, schema["$schema"])}
@@ -77,7 +93,7 @@ const SummarizationModule = ({ dictationString, schema, setFormEditData }: Summa
         continue;
       }
       if (!(Object.hasOwn(schema?.schema?.properties || schema?.properties, key))) { // if the key is wrong...
-        if (Object.hasOwn(dataToSchema, key)) {
+        if (site === 'https://twiga' && Object.hasOwn(dataToSchema, key)) {
           console.log("getting replacement key...");
           validData[dataToSchema[key]] = data[key];
         }
@@ -88,7 +104,7 @@ const SummarizationModule = ({ dictationString, schema, setFormEditData }: Summa
         };
         const fuse = new Fuse(schema?.['definition'], options);
         const searchResult = fuse.search(key);
-        console.log("\nsearch key", searchResult);
+        // console.log("\nsearch key", searchResult);
         
         if (searchResult && searchResult[0] && searchResult[0]?.score && searchResult[0].score < 0.4) {
           // sufficiently low to take the first one
@@ -192,6 +208,7 @@ const SummarizationModule = ({ dictationString, schema, setFormEditData }: Summa
 
   const handleInitContext = async (modelFile: string) => {
     await handleReleaseContext();
+    console.log(modelFile);
     console.log('Initializing context...', modelFile);
     initLlama({
       model: modelFile,
@@ -217,7 +234,18 @@ const SummarizationModule = ({ dictationString, schema, setFormEditData }: Summa
     const modelDir = `${RNFS.DocumentDirectoryPath}/models`;
     const modelDirExists = await exists(modelDir);
     console.log('Model dir', modelDir, 'exists');
-    const modelName = [modelDir, 'fence-llm.gguf'].join('/');
+    var modelName;
+    var fromURL;
+    if (site === 'https://twiga') {
+      modelName = [modelDir, 'fence-llm.gguf'].join('/');
+      fromURL = 'https://huggingface.co/cxd00/fence-llm/resolve/main/fence-llm.gguf?download=true'
+    } else if (site === 'https://rare') {
+      modelName = [modelDir, 'rare-llm.gguf'].join('/');
+      fromURL = 'https://huggingface.co/cxd00/rare-llm/resolve/main/rare-llm.gguf?download=true'
+    } else {
+      modelName = [modelDir, 'panthera-llm.gguf'].join('/');
+      fromURL = 'https://huggingface.co/cxd00/panthera-llm/resolve/main/panthera-llm.gguf?download=true'
+    }
     if (!modelDirExists) {
       try {
         await mkdir(modelDir);
@@ -227,10 +255,11 @@ const SummarizationModule = ({ dictationString, schema, setFormEditData }: Summa
     }
 
     const modelExists = await exists(modelName);
-    if (!modelExists) {
+    console.log("Does model exist?", modelExists);
+    if (true) {
       try {
         await RNFS.downloadFile({
-          fromUrl: 'https://huggingface.co/cxd00/fence-llm/resolve/main/fence-llm.gguf?download=true',
+          fromUrl: fromURL,
           toFile: modelName,
         })
           .promise.then((response) => {
@@ -252,17 +281,26 @@ const SummarizationModule = ({ dictationString, schema, setFormEditData }: Summa
 
   const queryModel = async (message: string) => {
     // await handleModelSetup();
-    systemPrompt = `\n\nCutting Knowledge Date: December 2023\nToday Date: 30 Jul 2025\n\nYou are a helpful chatbot who converts audio transcripts from rangers doing wildlife surveys into a list of keys and values. Here are the definitions of the keys you should know:\nfence_type: whether this is the cattle or game fence, \nrepair_status: whether or not the fence has been repaired, \nbreak_severity: whether the fence is fully, half, or not broken, \ngap_length: length of the gap in meters, \nnotes: any additional information on the fence break,.\nYou must only include keys and values found in the given transcript. Be concise. Do not repeat any keys.<|eot_id|><|start_header_id|>user<|end_header_id|>\n\n`;
+    if (site === 'https://twiga') {
+      systemPrompt = `<|start_header_id|>system<|end_header_id|>\n\nCutting Knowledge Date: December 2023\nToday Date: 30 Jul 2025\n\nYou are a helpful chatbot who converts audio transcripts from rangers doing wildlife surveys into a list of keys and values. Here are the definitions of the keys you should know:\nfence_type: whether this is the cattle or game fence, \nrepair_status: whether or not the fence has been repaired, \nbreak_severity: whether the fence is fully, half, or not broken, \ngap_length: length of the gap in meters, \nnotes: any additional information on the fence break,.\nYou must only include keys and values found in the given transcript. Be concise. Do not repeat any keys.<|eot_id|><|start_header_id|>user<|end_header_id|>\n\n`;
+    } else if (site === 'https://rare') {
+      systemPrompt = `<|im_start|>system\nYou are given a transcription of field notes from marine scientists. Extract **keys** and **values** from the transcript. Here are the definitions of the **keys** you should know:\npriority: severity of the incident,\nmethod: how the illegal fishing was conducted,\nvessel_size: length of the fishing vessel in meters,\nvessel_name: If observed, the name of the illegal fishing vessel,\naction: action taken by the reporter.\nYou must only include keys and values found in the given transcript. Do not repeat any keys. Return in the format of 'key: value, key: value'.<|im_end|>\n<|im_start|>user\n`;
+    } else {
+      systemPrompt = `<|start_header_id|>system<|end_header_id|>\n\nCutting Knowledge Date: December 2023\nToday Date: 13 Jun 2025\n\nYou are a helpful chatbot who converts audio transcripts from rangers doing wildlife surveys into a list of keys and values. Here are the definitions of the keys you should know:\ncluster_id: ID of the cluster, cougar_id: ID of the cougar, multi_cluster_entry: Whether this cluster is associated with another cluster, revisit: Whether this is a revisit of a site, observers: Ranger making the report., first_date_time: First Date/Time of the cluster, last_date_time: Last Date/Time of the cluster, num_points: Number of points/fixes in the cluster, general_location: General Location, habitat: Habitat type, est_stand_age: Estimated Age of the forest stand in years, dominant_overstory: Dominant Overstory species, dominant_understory: Dominant Understory species, area_cover: Area over which the carcass is spread, canopy_cover: Percent canopy Cover, canopy_cover_over_bed: Percent canopy cover over the bed or kill, prey_species: Prey Species, tissue_sample: Whether a tissue sample was taken, latitude: Latitude, longitude: Longitude, prey_sex: Sex of the prey, young_in_utero: Whether there was an unborn animal in the prey, prey_age: Age of the prey, carcass_cached: Whether the carcass was cached, cached_with: What the prey was cached with, carcass_hidden: Whether the carcass was hidden, drag_mark: Whether a drag mark was observed, distance_dragged_m: The distance the prey was dragged, blood_or_hair_in_drag: Whether there was blood or hair in drag marks, days_between: Days between carcass abandonment and examination, utilization: Percent of Carcass eaten, marrow_consistency: Marrow Consistency, marrow_color: Marrow Color, scavenger_sign_present: Whether signs of savengers were present, scavenger_species: Species of scavenger, scavenger_obs_type: Type of scavenger observed, scavenger_obs_description: Description of observations of the scavenger, displaced: Whether the cat was displaced from its kill, displaced_by: What displaced the cat, camera_deployed: Whether a camera was deployed, general_comments: Extra commentary on the observation, beneath_tree_sp: Species of tree over cougar bed, diameter_of_tree_cm: Diameter of tree over cougar bed in centimeters, associated_with_kill: Whether the bed site is associated with a nearby kill.\n Format all datetimes as '%Y-%m-%dT%H:%m'. You must only include keys and values found in the given transcript. Be concise. Do not repeat any keys.<|eot_id|><|start_header_id|>user<|end_header_id|>`;
+    }
     if (context) {
       setIsSummarizing(true);
     }
     let startTime = new Date().getTime() / 1000;
+    message = message.toLowerCase();
+    message = message.replace(/[.,;:'](?!\d)/g, '');
+    console.log("CLEAN MESSAGE", message)
     context
       ?.completion(
           {
-            prompt: systemPrompt + message + '<|eot_id|>assistant\n\n', 
-            n_predict: 256,
-            stop: ['<|eot_id|>', '<|end_header_id|>'],
+            prompt: systemPrompt + message, 
+            n_predict: 600,
+            stop: ['<|eot_id|>', '<|end_header_id|>', '<|im_end|>'],
             temperature: 0,
             top_p: 0.3,
             top_k: 20,
@@ -301,7 +339,8 @@ const SummarizationModule = ({ dictationString, schema, setFormEditData }: Summa
 
     if (message) {
       console.log(message);
-      queryModel(message + '<|eot_id|><|start_header_id|>assistant<|end_header_id|>');
+      // queryModel(message + '<|eot_id|><|start_header_id|>assistant<|end_header_id|>');
+      queryModel(message + '<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n`');
     }
   };
 

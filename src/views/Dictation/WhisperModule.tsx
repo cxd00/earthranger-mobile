@@ -41,7 +41,8 @@ const WhisperModule = ({ setDictationOutput, setIsCapturing, reportTypeId }: Whi
   const [context, setContext] = useState<{} | undefined>();
   // `Cougar Bedsite Cluster ID 81835 It is not a multi-cluster entry, it is not a revisit. The visit date is Tuesday, May 6, 1247pm. Observers are Elsa Heath and Matt Mahan. First date and time. 4/29/2025, 1 o'clock a.m. Last date and time, 4/29/2025, 9 a.m. Nine total fixes. General location, Dungeon S Road. Habitat, Conifer, Reprod. Estimated stand age, 21-60. Dominant overstory, Douglas fir dominant understory moss area of bed open canopy cover 51 to 75 lat long 47.9 44 114 - 123.0623 to 4 Bed site description, bed is on mossy substrate, grassy with some sticks. Can it be cover over bed 51-75? Bed is beneath a red alder tree. Tree diameter is 15 cm. General comments, it's a fairly fresh bed.`
   // const [dictation, setDictation] = useState<string>(`Cougar Bedsite Cluster ID 81835 It is not a multi-cluster entry, it is not a revisit. The visit date is Tuesday, May 6, 1247pm. Observers are Elsa Heath and Matt Mahan. First date and time. 4/29/2025, 1 o'clock a.m. Last date and time, 4/29/2025, 9 p.m. Nine total fixes. General location, Dungeon S Road. Habitat, Conifer, Reprod. Estimated stand age, 21-60. Dominant overstory, Douglas fir dominant understory moss area of bed open canopy cover 51 to 75 latitude 47.944114 longitude -123.062324 Bed site description, bed is on mossy substrate, grassy with some sticks. Can it be cover over bed 51-75? Bed is beneath a red alder tree. Tree diameter is 15 cm. General comments, it's a fairly fresh bed.`);
-  const [dictation, setDictation] = useState<string>('');
+  const entry_string = "";
+  const [dictation, setDictation] = useState<string>(entry_string);
   const [modelReady, setModelReady] = useState<Boolean>(false);
   const [isTranscribing, setIsTranscribing] = useState<Boolean>(false);
   const [stopTranscribe, setStopTranscribe] = useState<{
@@ -135,6 +136,8 @@ const WhisperModule = ({ setDictationOutput, setIsCapturing, reportTypeId }: Whi
     subscribe(evt => {
       const { isCapturing, data, processTime, recordingTime } = evt
       console.log("dictation data", data, isCapturing);
+      console.log("processing time: ", processTime);
+      console.log("recording time: ", recordingTime);
       setIsCapturing(isCapturing);
       if (data && data.result) {
         setDictation(dictation + ' ' + data.result);
