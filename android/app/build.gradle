@@ -171,19 +171,19 @@ android {
 
     signingConfigs {
 
-        release {
-            keyAlias localProperties['KEY_ALIAS']
-            keyPassword getSigningKeyPassword()
-            storeFile file(localProperties['KEY_FILE'])
-            storePassword getKeystorePassword()
-        }
+        // release {
+        //     keyAlias localProperties['KEY_ALIAS']
+        //     keyPassword getSigningKeyPassword()
+        //     storeFile file(localProperties['KEY_FILE'])
+        //     storePassword getKeystorePassword()
+        // }
 
-        beta {
-            keyAlias localProperties['PREVIEW_KEY_ALIAS']
-            keyPassword getPreviewSigningKeyPassword()
-            storeFile file(localProperties['PREVIEW_KEY_FILE'])
-            storePassword getPreviewKeystorePassword()
-        }
+        // beta {
+        //     keyAlias localProperties['PREVIEW_KEY_ALIAS']
+        //     keyPassword getPreviewSigningKeyPassword()
+        //     storeFile file(localProperties['PREVIEW_KEY_FILE'])
+        //     storePassword getPreviewKeystorePassword()
+        // }
 
     }
 
@@ -200,12 +200,12 @@ android {
 
             matchingFallbacks = ['release']
 
-            signingConfig signingConfigs.beta
+            // signingConfig signingConfigs.beta
             buildConfigField "String", "BUILD_PATH", "\".test\""
         }
 
         release {
-            signingConfig signingConfigs.release
+            // signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
 
             firebaseCrashlytics {
