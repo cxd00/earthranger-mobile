@@ -88,6 +88,9 @@ import { customBackButton, osBackIcon } from '../../../../common/components/head
 import { LocationFormats, nullIslandLocation } from '../../../../common/utils/locationUtils';
 import { useGetLocation } from '../../../../common/data/location/useGetLocation';
 
+// audio import
+import WavRecorder from '../../../Dictation/WavRecorder';
+
 // constants
 import {
   ACTIVE_PATROL_KEY,
@@ -174,7 +177,8 @@ const ReportForm = () => {
   } = route.params;
 
   // References
-  const reportTypeId = useRef(typeId).current;
+  // const reportTypeId = useRef(typeId).current;
+  const reportTypeId: number = Math.floor(Date.now() / 1000);
   const reportTitle = useRef(cropHeaderTitleText(title, 5)).current;
   // eslint-disable-next-line max-len
   const isDefaultPatrolInfoEnabled = useRef(route.params.isDefaultPatrolInfoEnabled || false).current;
@@ -218,6 +222,7 @@ const ReportForm = () => {
   const [draftViewFinishedLoading, setDraftViewFinishedLoading] = useState(false);
   const [isLoaderVisible, setIsLoaderVisible] = useState(false);
   const [accuracy, setAccuracy] = useState(0);
+  // const [dictationOutput, setDictationOutput] = useState('');
 
   let mapURL = createMapBoxPointMapURL(reportCoordinates);
 
@@ -1057,16 +1062,18 @@ const ReportForm = () => {
             {/* End Map View */}
 
             {/* JSON Form */}
+            {/* {<WavRecorder schema={jsonSchema} setFormEditData={setFormEditData} />} */}
             {isEmpty(jsonSchema) ? null : (
               <ReportJsonForm
-                draftData={formEditData}
-                schema={jsonSchema}
-                setIsFormEmpty={setIsFormEmpty}
-                setShowSchemaErrorMessage={setShowSchemaErrorMessage}
-                setReportFormData={setFormData}
-                setSchemaErrors={setSchemaErrors}
-              />
+                  draftData={formEditData}
+                  schema={jsonSchema}
+                  setIsFormEmpty={setIsFormEmpty}
+                  setShowSchemaErrorMessage={setShowSchemaErrorMessage}
+                  setReportFormData={setFormData}
+                  setSchemaErrors={setSchemaErrors}
+                />
             )}
+            
             {/* End JSON Form */}
 
             {/* Edit Location Dialog */}

@@ -42,15 +42,23 @@ export const ReportJsonForm = ({
   const [jsonSchema, setJsonSchema] = useState<any>({});
   const [uiSchema, setUiSchema] = useState<any>();
   const [isValidSchema, setIsValidSchema] = useState<boolean | undefined>(undefined);
-
+  const [inputData, setInputData] = useState<any>(draftData);
+  const [key, setKey] = useState(0);
+  
   // References
   const ajv = useRef(createAjv({ useDefaults: true })).current;
+
+  useEffect(() => {
+    setInputData({ ...inputData, ...draftData });
+    setKey(key + 1);
+  }, [draftData]);
 
   useEffect(() => {
     const initJsonForm = async () => {
       try {
         const validSchema = validateJSONSchema(schema);
         const uiElements = generateUISchema(validSchema);
+        console.log("SCHEMA", uiElements.elements[3]);
         setJsonSchema(validSchema.schema);
         setUiSchema({
           type: 'Categorization',
@@ -61,7 +69,8 @@ export const ReportJsonForm = ({
         });
 
         if (draftData) {
-          setReportFormData(draftData);
+          // setReportFormData(draftData);
+          setInputData({...draftData});
         }
         setIsValidSchema(true);
       } catch (error) {
@@ -86,9 +95,10 @@ export const ReportJsonForm = ({
       {
         isValidSchema && (
           <JsonForms
+            key={key}
             schema={jsonSchema}
             uischema={uiSchema}
-            data={draftData ?? {}}
+            data={{...inputData} ?? {}}
             renderers={RNRenderers}
             cells={RNCells}
             onChange={({ data, errors }) => {

@@ -17,6 +17,7 @@ import { FormTextField } from '../components/FormTextField/FormTextField';
 import { BackIconAndroid } from '../../../../../common/icons/BackIconAndroid';
 import { IS_ANDROID } from '../../../../../common/constants/constants';
 import { BackIconiOS } from '../../../../../common/icons/BackIconiOS';
+import WavRecorder from '../../../../Dictation/WavRecorder';
 
 // Styles
 import styles from '../Controls.style';
@@ -37,6 +38,7 @@ const SelectPickerRenderer = ({
 
   // Handlers
   const onPickerChangeHandler = (pickerValue: PickerValue) => {
+    console.log("pick", pickerValue);
     setValue(pickerValue);
     handleChange(path, pickerValue);
   };
@@ -59,6 +61,7 @@ const SelectPickerRenderer = ({
     <>
       {!schema.isHidden ? (
         <View>
+          <WavRecorder fieldName={schema?.title} valueSetter={setValue} schema={schema}/>
           <Picker
             placeholder={label}
             value={value}

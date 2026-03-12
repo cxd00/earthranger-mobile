@@ -22,3 +22,9 @@
 # react-native-reanimated
 -keep class com.swmansion.reanimated.** { *; }
 -keep class com.facebook.react.turbomodule.** { *; }
+
+# whisper.rn
+-keep class com.rnwhisper.** { *; }
+
+# llama.rn
+-keep class com.rnllama.** { *; }

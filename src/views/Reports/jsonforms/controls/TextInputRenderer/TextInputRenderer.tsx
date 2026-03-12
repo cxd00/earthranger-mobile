@@ -1,6 +1,6 @@
 // External Dependencies
 import React, { useEffect, useState } from 'react';
-import { View } from 'react-native';
+import { View, Pressable, Text } from 'react-native';
 import { withJsonFormsControlProps } from '@jsonforms/react';
 import {
   computeLabel,
@@ -13,6 +13,7 @@ import { isEmpty } from 'lodash-es';
 
 // Internal Dependencies
 import { FormTextField } from '../components/FormTextField/FormTextField';
+import WavRecorder from '../../../../Dictation/WavRecorder';
 
 // Styles
 import styles from '../Controls.style';
@@ -49,6 +50,7 @@ const TextInputRenderer = ({
     <>
       {!schema.isHidden ? (
         <View style={styles.container}>
+          <WavRecorder fieldName={schema?.title} valueSetter={setValue}/>
           <FormTextField
             placeholder={computedLabel}
             isFocused={isFocused}
